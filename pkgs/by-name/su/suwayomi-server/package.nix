@@ -13,11 +13,10 @@ in
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "suwayomi-server";
-  version = "1.1.1";
-  revision = 1535;
+  version = "2.1.1867";
 
   src = fetchurl {
-    url = "https://github.com/Suwayomi/Suwayomi-Server/releases/download/v${finalAttrs.version}/Suwayomi-Server-v${finalAttrs.version}-r${toString finalAttrs.revision}.jar";
+    url = "https://github.com/Suwayomi/Suwayomi-Server/releases/download/v${finalAttrs.version}/Suwayomi-Server-v${finalAttrs.version}.jar";
     hash = "sha256-mPzREuH89RGhZLK+5aIPuq1gmNGc9MGG0wh4ZV5dLTg=";
   };
 
