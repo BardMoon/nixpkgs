@@ -11,7 +11,7 @@
 }:
 let
   pname = "feishin";
-  version = "0.12.6";
+  version = "0.21.2";
 
   src = fetchFromGitHub {
     owner = "jeffvli";
