@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
     owner = "RSSNext";
     repo = "Folo";
     tag = "desktop/v${version}";
-    hash = "";
+    hash = "sha256-fi8y0217LHPw/FOszP0C3nhjs8xhGkid+mX8moseLJw=";
   };
 
   nativeBuildInputs = [
