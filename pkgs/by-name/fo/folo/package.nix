@@ -12,13 +12,13 @@
 stdenv.mkDerivation rec {
   pname = "folo";
 
-  version = "0.6.3";
+  version = "1.0.0";
 
   src = fetchFromGitHub {
     owner = "RSSNext";
     repo = "Folo";
     tag = "v${version}";
-    hash = "sha256-huVk5KcsepDwtdWMm9pvn31GE1felbH1pR3mGqlSWRs=";
+    hash = "";
   };
 
   nativeBuildInputs = [
