@@ -17,7 +17,7 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "RSSNext";
     repo = "Folo";
-    tag = "v${version}";
+    tag = "desktop/v${version}";
     hash = "";
   };
 
