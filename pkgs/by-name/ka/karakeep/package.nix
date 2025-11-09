@@ -23,7 +23,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "karakeep-app";
     repo = "karakeep";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-KkRCMS/g+xCQyVh1qB/kf5Seqrn2McYBaUHqKOeigCA=";
+    hash = "";
   };
 
   patches = [
