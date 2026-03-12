@@ -41,6 +41,7 @@
   calendarSupport ? false,
   # gpu-screen-recorder support was moved to an optional plugin in v4.0.0
   gpuScreenRecorderSupport ? false,
+  extraPackages ? [],
 }:
 let
   runtimeDeps = [
@@ -55,7 +56,8 @@ let
   ++ lib.optional wlsunsetSupport wlsunset
   ++ lib.optional wl-clipboardSupport wl-clipboard
   ++ lib.optional imagemagickSupport imagemagick
-  ++ lib.optional gpuScreenRecorderSupport gpu-screen-recorder;
+  ++ lib.optional gpuScreenRecorderSupport gpu-screen-recorder
+  ++ extraPackages;
 
   giTypelibPath = lib.makeSearchPath "lib/girepository-1.0" [
     evolution-data-server
