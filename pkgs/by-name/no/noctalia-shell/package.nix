@@ -81,11 +81,13 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   nativeBuildInputs = [
     qt6.wrapQtAppsHook
+    runtimeDeps
   ];
 
   buildInputs = [
     qt6.qtbase
     qt6.qtmultimedia
+    runtimeDeps
   ];
 
   installPhase = ''
