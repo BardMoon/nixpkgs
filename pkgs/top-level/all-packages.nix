@@ -288,7 +288,7 @@ with pkgs;
     name = "update-autotools-gnu-config-scripts-hook";
     substitutions = {
       gnu_config = gnu-config.override {
-        runtimeShell = targetPackages.stdenv.shell;
+        runtimeShell = if stdenv.buildPlatform == stdenv.hostPlatform then stdenv.shell else runtimeShell;
       };
     };
   } ../build-support/setup-hooks/update-autotools-gnu-config-scripts.sh;
@@ -306,6 +306,8 @@ with pkgs;
   buildFHSEnv = buildFHSEnvBubblewrap;
   buildFHSEnvChroot = callPackage ../build-support/build-fhsenv-chroot { }; # Deprecated; use buildFHSEnv/buildFHSEnvBubblewrap
   buildFHSEnvBubblewrap = callPackage ../build-support/build-fhsenv-bubblewrap { };
+
+  buildLakePackage = callPackage ../build-support/lake { };
 
   cameractrls-gtk4 = cameractrls.override { withGtk = 4; };
 
@@ -1257,9 +1259,6 @@ with pkgs;
 
   winetricks = callPackage ../applications/emulators/wine/winetricks.nix { };
 
-  zsnes = pkgsi686Linux.callPackage ../applications/emulators/zsnes { };
-  zsnes2 = pkgsi686Linux.callPackage ../applications/emulators/zsnes/2.x.nix { };
-
   ### APPLICATIONS/EMULATORS/RETROARCH
 
   libretro = recurseIntoAttrs (callPackage ../applications/emulators/libretro { });
@@ -1635,7 +1634,7 @@ with pkgs;
 
   coreboot-configurator = libsForQt5.callPackage ../tools/misc/coreboot-configurator { };
 
-  intel-oneapi = callPackage ../development/libraries/intel-oneapi { };
+  intel-oneapi = recurseIntoAttrs (callPackage ../development/libraries/intel-oneapi { });
 
   cambrinary = python3Packages.callPackage ../applications/misc/cambrinary { };
 
@@ -1686,12 +1685,9 @@ with pkgs;
 
   dune_2 = callPackage ../by-name/du/dune/package.nix {
     version = "2.9.3";
-    inherit ocamlPackages;
   };
 
-  dune_3 = callPackage ../by-name/du/dune/package.nix {
-    inherit ocamlPackages;
-  };
+  dune_3 = callPackage ../by-name/du/dune/package.nix { };
 
   dvc = with python3.pkgs; toPythonApplication dvc;
 
@@ -1871,8 +1867,6 @@ with pkgs;
       { };
 
   online-judge-tools = with python3.pkgs; toPythonApplication online-judge-tools;
-
-  opaline = callPackage ../by-name/op/opaline/package.nix { inherit ocamlPackages; };
 
   inherit (ocamlPackages) patdiff;
 
@@ -2066,7 +2060,8 @@ with pkgs;
 
     m17n = callPackage ../tools/inputmethods/ibus-engines/ibus-m17n { };
 
-    inherit mozc mozc-ut;
+    mozc = mozc.override { withIbus = true; };
+    mozc-ut = mozc-ut.override { withIbus = true; };
 
     openbangla-keyboard = libsForQt5.callPackage ../applications/misc/openbangla-keyboard {
       withIbusSupport = true;
@@ -2158,7 +2153,7 @@ with pkgs;
     cudaPackages_13_2
     ;
 
-  cudaPackages_12 = cudaPackages_12_8;
+  cudaPackages_12 = cudaPackages_12_9;
 
   cudaPackages_13 = cudaPackages_13_0;
 
@@ -2525,32 +2520,6 @@ with pkgs;
     withXorg = false;
   };
 
-  grub2 = callPackage ../tools/misc/grub/default.nix { };
-
-  grub2_efi = grub2.override {
-    efiSupport = true;
-  };
-
-  grub2_ieee1275 = grub2.override {
-    ieee1275Support = true;
-  };
-
-  grub2_light = grub2.override {
-    zfsSupport = false;
-  };
-
-  grub2_xen = grub2.override {
-    xenSupport = true;
-  };
-
-  grub2_xen_pvh = grub2.override {
-    xenPvhSupport = true;
-  };
-
-  grub2_pvgrub_image = grub2_pvhgrub_image.override {
-    grubPlatform = "xen";
-  };
-
   gruut = with python3.pkgs; toPythonApplication gruut;
 
   gruut-ipa = with python3.pkgs; toPythonApplication gruut-ipa;
@@ -2852,6 +2821,8 @@ with pkgs;
 
   leanblueprint = with python3Packages; toPythonApplication leanblueprint;
 
+  leanPackages = callPackage ../top-level/lean-packages.nix { };
+
   inherit (callPackage ../development/tools/lerna { })
     lerna_6
     lerna_8
@@ -3003,7 +2974,7 @@ with pkgs;
   };
 
   # Not in aliases because it wouldn't get picked up by callPackage
-  netbox = netbox_4_4;
+  netbox = netbox_4_5;
 
   netcap-nodpi = callPackage ../by-name/ne/netcap/package.nix {
     withDpi = false;
@@ -3602,12 +3573,14 @@ with pkgs;
   inherit (callPackages ../servers/varnish { })
     varnish60
     varnish77
+    varnish80
     ;
   inherit (callPackages ../servers/varnish/packages.nix { })
     varnish60Packages
     varnish77Packages
+    varnish80Packages
     ;
-  varnishPackages = varnish77Packages;
+  varnishPackages = varnish80Packages;
   varnish = varnishPackages.varnish;
 
   vncdo = with python3Packages; toPythonApplication vncdo;
@@ -4607,6 +4580,7 @@ with pkgs;
   inherit (ocamlPackages)
     ocamlformat # latest version
     ocamlformat_0_28_1
+    ocamlformat_0_29_0
     ;
 
   inherit (ocamlPackages) odig;
@@ -4637,15 +4611,15 @@ with pkgs;
   wrapRustcWith = { rustc-unwrapped, ... }@args: callPackage ../build-support/rust/rustc-wrapper args;
   wrapRustc = rustc-unwrapped: wrapRustcWith { inherit rustc-unwrapped; };
 
-  rust_1_93 = callPackage ../development/compilers/rust/1_93.nix { };
-  rust = rust_1_93;
+  rust_1_94 = callPackage ../development/compilers/rust/1_94.nix { };
+  rust = rust_1_94;
 
   mrustc = callPackage ../development/compilers/mrustc { };
   mrustc-minicargo = callPackage ../development/compilers/mrustc/minicargo.nix { };
   mrustc-bootstrap = callPackage ../development/compilers/mrustc/bootstrap.nix { };
 
-  rustPackages_1_93 = rust_1_93.packages.stable;
-  rustPackages = rustPackages_1_93;
+  rustPackages_1_94 = rust_1_94.packages.stable;
+  rustPackages = rustPackages_1_94;
 
   inherit (rustPackages)
     cargo
@@ -4683,7 +4657,6 @@ with pkgs;
   defaultCrateOverrides = callPackage ../build-support/rust/default-crate-overrides.nix { };
 
   inherit (callPackages ../development/tools/rust/cargo-pgrx { })
-    cargo-pgrx_0_12_0_alpha_1
     cargo-pgrx_0_12_6
     cargo-pgrx_0_16_0
     cargo-pgrx_0_16_1
@@ -4970,7 +4943,6 @@ with pkgs;
 
   inherit (beam.interpreters)
     erlang
-    erlang_29
     erlang_28
     erlang_27
     erlang_26
@@ -5233,16 +5205,6 @@ with pkgs;
 
   pipx = with python3.pkgs; toPythonApplication pipx;
 
-  pipewire = callPackage ../development/libraries/pipewire {
-    # ffmpeg depends on SDL2 which depends on pipewire by default.
-    # Break the cycle by depending on ffmpeg-headless.
-    # Pipewire only uses libavcodec (via an SPA plugin), which isn't
-    # affected by the *-headless changes.
-    ffmpeg = ffmpeg-headless;
-  };
-
-  wireplumber = callPackage ../development/libraries/pipewire/wireplumber.nix { };
-
   racket-minimal = callPackage ../by-name/ra/racket/minimal.nix {
     stdenv = stdenvAdapters.makeStaticLibraries stdenv;
   };
@@ -5415,9 +5377,10 @@ with pkgs;
     apacheKafka_3_9
     apacheKafka_4_0
     apacheKafka_4_1
+    apacheKafka_4_2
     ;
 
-  apacheKafka = apacheKafka_4_1;
+  apacheKafka = apacheKafka_4_2;
 
   asn2quickder = python3Packages.callPackage ../development/tools/asn2quickder { };
 
@@ -5428,17 +5391,17 @@ with pkgs;
   electron-source = callPackage ../development/tools/electron { };
 
   inherit (callPackages ../development/tools/electron/binary { })
-    electron_37-bin
     electron_38-bin
     electron_39-bin
     electron_40-bin
+    electron_41-bin
     ;
 
   inherit (callPackages ../development/tools/electron/chromedriver { })
-    electron-chromedriver_37
     electron-chromedriver_38
     electron-chromedriver_39
     electron-chromedriver_40
+    electron-chromedriver_41
     ;
 
   inherit
@@ -5458,11 +5421,7 @@ with pkgs;
           });
       in
       {
-        electron_37 = electron_37-bin;
-        electron_38 = getElectronPkg {
-          src = electron-source.electron_38;
-          bin = electron_38-bin;
-        };
+        electron_38 = electron_38-bin;
         electron_39 = getElectronPkg {
           src = electron-source.electron_39;
           bin = electron_39-bin;
@@ -5471,16 +5430,20 @@ with pkgs;
           src = electron-source.electron_40;
           bin = electron_40-bin;
         };
+        electron_41 = getElectronPkg {
+          src = electron-source.electron_41;
+          bin = electron_41-bin;
+        };
       }
     )
-    electron_37
     electron_38
     electron_39
     electron_40
+    electron_41
     ;
-  electron = electron_38;
-  electron-bin = electron_38-bin;
-  electron-chromedriver = electron-chromedriver_38;
+  electron = electron_41;
+  electron-bin = electron_41-bin;
+  electron-chromedriver = electron-chromedriver_41;
 
   autoconf = callPackage ../development/tools/misc/autoconf { };
   autoconf269 = callPackage ../development/tools/misc/autoconf/2.69.nix { };
@@ -7229,11 +7192,6 @@ with pkgs;
     physfs
     ;
 
-  pipelight = callPackage ../tools/misc/pipelight {
-    stdenv = stdenv_32bit;
-    wine-staging = pkgsi686Linux.wine-staging;
-  };
-
   place-cursor-at = haskell.lib.compose.justStaticExecutables haskellPackages.place-cursor-at;
 
   podofo = podofo_1_0;
@@ -7261,10 +7219,11 @@ with pkgs;
 
   # this version should align with the static protobuf version linked into python3.pkgs.tensorflow
   # $ nix-shell -I nixpkgs=$(git rev-parse --show-toplevel) -p python3.pkgs.tensorflow --run "python3 -c 'import google.protobuf; print(google.protobuf.__version__)'"
-  protobuf = protobuf_33;
+  protobuf = protobuf_34;
 
   inherit
     ({
+      protobuf_34 = callPackage ../development/libraries/protobuf/34.nix { };
       protobuf_33 = callPackage ../development/libraries/protobuf/33.nix { };
       protobuf_32 = callPackage ../development/libraries/protobuf/32.nix { };
       protobuf_31 = callPackage ../development/libraries/protobuf/31.nix { };
@@ -7282,6 +7241,7 @@ with pkgs;
         abseil-cpp = abseil-cpp_202103;
       };
     })
+    protobuf_34
     protobuf_33
     protobuf_32
     protobuf_31
@@ -7579,7 +7539,7 @@ with pkgs;
     autoreconfHook = buildPackages.autoreconfHook269;
   };
 
-  unixODBCDrivers = recurseIntoAttrs (callPackages ../development/libraries/unixODBCDrivers { });
+  unixodbcDrivers = recurseIntoAttrs (callPackages ../development/libraries/unixODBCDrivers { });
 
   valeStyles = recurseIntoAttrs (callPackages ../by-name/va/vale/styles.nix { });
 
@@ -7609,7 +7569,7 @@ with pkgs;
     gtkVersion = "4";
   };
 
-  inherit (callPackage ../development/libraries/vtk { }) vtk_9_5;
+  inherit (callPackage ../development/libraries/vtk { }) vtk_9_5 vtk_9_6;
 
   vtk = vtk_9_5;
 
@@ -7620,8 +7580,6 @@ with pkgs;
   };
 
   vtkWithQt6 = vtk.override { withQt6 = true; };
-
-  vulkan-caps-viewer = libsForQt5.callPackage ../tools/graphics/vulkan-caps-viewer { };
 
   wayland = callPackage ../development/libraries/wayland { };
   wayland-scanner = callPackage ../development/libraries/wayland/scanner.nix { };
@@ -7748,16 +7706,11 @@ with pkgs;
   ### DEVELOPMENT / GO
 
   # the unversioned attributes should always point to the same go version
-  go = go_1_25;
-  buildGoModule = buildGo125Module;
+  go = go_1_26;
+  buildGoModule = buildGo126Module;
 
   go_latest = go_1_26;
   buildGoLatestModule = buildGo126Module;
-
-  go_1_24 = callPackage ../development/compilers/go/1.24.nix { };
-  buildGo124Module = callPackage ../build-support/go/module.nix {
-    go = buildPackages.go_1_24;
-  };
 
   go_1_25 = callPackage ../development/compilers/go/1.25.nix { };
   buildGo125Module = callPackage ../build-support/go/module.nix {
@@ -8573,7 +8526,12 @@ with pkgs;
   );
   fuse = fuse2;
   fuse2 = lowPrio (if stdenv.hostPlatform.isDarwin then macfuse-stubs else fusePackages.fuse_2);
-  fuse3 = fusePackages.fuse_3;
+  fuse3 = lowPrio (
+    if stdenv.hostPlatform.isDarwin then
+      macfuse-stubs.override { isFuse3 = true; }
+    else
+      fusePackages.fuse_3
+  );
 
   gpm-ncurses = gpm.override { withNcurses = true; };
 
@@ -8666,8 +8624,6 @@ with pkgs;
   # zen-kernel
   linuxPackages_zen = linuxKernel.packages.linux_zen;
   linux_zen = linuxPackages_zen.kernel;
-  linuxPackages_lqx = linuxKernel.packages.linux_lqx;
-  linux_lqx = linuxPackages_lqx.kernel;
 
   # XanMod kernel
   linuxPackages_xanmod = linuxKernel.packages.linux_xanmod;
@@ -8812,12 +8768,8 @@ with pkgs;
 
   rfkill_udev = callPackage ../os-specific/linux/rfkill/udev.nix { };
 
-  sgx-sdk = callPackage ../os-specific/linux/sgx/sdk {
-    ocamlPackages = ocaml-ng.ocamlPackages_5_3;
-  };
-
   sgx-psw = callPackage ../os-specific/linux/sgx/psw {
-    protobuf = protobuf_21;
+    protobuf = protobuf_33;
   };
 
   sinit = callPackage ../os-specific/linux/sinit {
@@ -9296,7 +9248,7 @@ with pkgs;
 
   cbconvert-gui = cbconvert.gui;
 
-  cdparanoia = cdparanoiaIII;
+  cdparanoia = cdparanoia-iii;
 
   cdxj-indexer = with python3Packages; toPythonApplication cdxj-indexer;
 
@@ -9554,6 +9506,8 @@ with pkgs;
   firefox-bin = wrapFirefox firefox-bin-unwrapped {
     pname = "firefox-bin";
   };
+
+  firefoxpwa = wrapFirefox firefoxpwa-unwrapped { };
 
   librewolf = wrapFirefox librewolf-unwrapped {
     inherit (librewolf-unwrapped) extraPrefsFiles extraPoliciesFiles;
@@ -10184,10 +10138,6 @@ with pkgs;
     ;
 
   taxi-cli = with python3Packages; toPythonApplication taxi;
-
-  imapfilter = callPackage ../applications/networking/mailreaders/imapfilter.nix {
-    lua = lua5;
-  };
 
   mupdf-headless = mupdf.override {
     enableX11 = false;
@@ -11027,11 +10977,6 @@ with pkgs;
     SDL_image = SDL_image.override { SDL = SDL_sixel; };
   };
 
-  zynaddsubfx = callPackage ../applications/audio/zynaddsubfx {
-    guiModule = "zest";
-    fftw = fftwSinglePrec;
-  };
-
   zynaddsubfx-fltk = zynaddsubfx.override {
     guiModule = "fltk";
   };
@@ -11106,10 +11051,6 @@ with pkgs;
   };
   vertcoind = callPackage ../applications/blockchains/vertcoin {
     withGui = false;
-  };
-
-  zcash = callPackage ../applications/blockchains/zcash {
-    stdenv = llvmPackages.stdenv;
   };
 
   beancount = with python3.pkgs; toPythonApplication beancount;
@@ -11583,9 +11524,18 @@ with pkgs;
 
   notus-scanner = with python3Packages; toPythonApplication notus-scanner;
 
-  openblas = callPackage ../development/libraries/science/math/openblas {
-    inherit (llvmPackages) openmp;
-  };
+  openblas =
+    callPackage
+      (
+        # FIXME: migrate everything off make.nix on mass rebuild.
+        if stdenv.system == "aarch64-darwin" then
+          ../development/libraries/science/math/openblas
+        else
+          ../development/libraries/science/math/openblas/make.nix
+      )
+      {
+        inherit (llvmPackages) openmp;
+      };
 
   # A version of OpenBLAS using 32-bit integers on all platforms for compatibility with
   # standard BLAS and LAPACK.
@@ -12160,7 +12110,7 @@ with pkgs;
     );
 
   nix-eval-jobs = callPackage ../tools/package-management/nix-eval-jobs {
-    nixComponents = nixVersions.nixComponents_2_33;
+    nixComponents = nixVersions.nixComponents_2_34;
   };
 
   nix-delegate = haskell.lib.compose.justStaticExecutables haskellPackages.nix-delegate;
@@ -12249,6 +12199,8 @@ with pkgs;
   mkSaneConfig = callPackage ../applications/graphics/sane/config.nix { };
 
   sane-frontends = callPackage ../applications/graphics/sane/frontends.nix { };
+
+  selinuxPackages = recurseIntoAttrs (callPackage ../os-specific/linux/selinux { });
 
   snscrape = with python3Packages; toPythonApplication snscrape;
 
@@ -12435,6 +12387,8 @@ with pkgs;
   xp-pen-deco-01-v2-driver = libsForQt5.xp-pen-deco-01-v2-driver;
 
   radicle-node-unstable = callPackage ../by-name/ra/radicle-node/unstable.nix { };
+
+  olivetin-3k = callPackage ../by-name/ol/olivetin/3k.nix { };
 
   newlib-nano = newlib.override {
     nanoizeNewlib = true;

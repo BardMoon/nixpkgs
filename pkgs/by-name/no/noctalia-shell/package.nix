@@ -6,7 +6,7 @@
 
   # build
   qt6,
-  quickshell,
+  noctalia-qs,
 
   # runtime deps
   bluez,
@@ -16,6 +16,7 @@
   ddcutil,
   wlsunset,
   wl-clipboard,
+  wlr-randr,
   imagemagick,
   wget,
   gpu-screen-recorder,
@@ -37,6 +38,7 @@
   ddcutilSupport ? true,
   wlsunsetSupport ? true,
   wl-clipboardSupport ? true,
+  wlr-randrSupport ? true,
   imagemagickSupport ? true,
   calendarSupport ? false,
   # gpu-screen-recorder support was moved to an optional plugin in v4.0.0
@@ -55,6 +57,7 @@ let
   ++ lib.optional ddcutilSupport ddcutil
   ++ lib.optional wlsunsetSupport wlsunset
   ++ lib.optional wl-clipboardSupport wl-clipboard
+  ++ lib.optional wlr-randrSupport wlr-randr
   ++ lib.optional imagemagickSupport imagemagick
   ++ lib.optional gpuScreenRecorderSupport gpu-screen-recorder
   ++ extraPackages;
@@ -70,13 +73,13 @@ let
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "noctalia-shell";
-  version = "4.5.0";
+  version = "4.6.7";
 
   src = fetchFromGitHub {
     owner = "noctalia-dev";
     repo = "noctalia-shell";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Y5P0RYO9NKxa4UZBoGmmxtz3mEwJrBOfvdLJRGjV2Os=";
+    hash = "sha256-6fuxf185uga/AaeFgN6VUygGE8bUEkzZSA1UQ1FFes4=";
   };
 
   nativeBuildInputs = [
@@ -94,7 +97,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p $out/share/noctalia-shell $out/bin
-    ln -s ${quickshell}/bin/qs $out/bin/noctalia-shell
+    ln -s ${noctalia-qs}/bin/qs $out/bin/noctalia-shell
 
     cp -R \
       Assets Commons CREDITS.md Helpers Modules Services Shaders Scripts Widgets shell.qml \
@@ -123,6 +126,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     license = lib.licenses.mit;
     mainProgram = "noctalia-shell";
     maintainers = with lib.maintainers; [ spacedentist ];
-    platforms = quickshell.meta.platforms;
+    platforms = noctalia-qs.meta.platforms;
   };
 })

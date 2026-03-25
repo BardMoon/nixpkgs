@@ -9,14 +9,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "tencentcloud-sdk-python";
-  version = "3.1.53";
+  version = "3.1.62";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "TencentCloud";
     repo = "tencentcloud-sdk-python";
     tag = finalAttrs.version;
-    hash = "sha256-46so2haT1Skw9fTtYj9XeJfc5usp5ZnJXAWJX2WJcr0=";
+    hash = "sha256-ttWBQSBikQpQareJ97ZvNWm/Nyqn94vfhE4RJDIe0Gc=";
   };
 
   build-system = [ setuptools ];

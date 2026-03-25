@@ -13,14 +13,14 @@ in
 
 python.pkgs.buildPythonApplication rec {
   pname = "lasuite-meet";
-  version = "1.9.0";
+  version = "1.11.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "suitenumerique";
     repo = "meet";
     tag = "v${version}";
-    hash = "sha256-It/XicX3QBcaun36uksmbeEwhpCHpPM4SAfJwm6wjsQ=";
+    hash = "sha256-CvpGDfdK1+EJ+Tj9NLrfRfK4VpJVcDqezVJL6ZVdOQ8=";
   };
 
   sourceRoot = "source/src/backend";
@@ -28,9 +28,18 @@ python.pkgs.buildPythonApplication rec {
   patches = [
     # Support configuration throught environment variables for SECURE_*
     ./secure_settings.patch
+    # Fix module inclusion after switching to uv-build
+    # https://github.com/suitenumerique/meet/pull/1199
+    ./gh1199.patch
+
   ];
 
-  build-system = with python.pkgs; [ setuptools ];
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace-fail "uv_build>=0.10.9,<0.11.0" "uv_build"
+  '';
+
+  build-system = with python.pkgs; [ uv-build ];
 
   dependencies =
     with python.pkgs;
@@ -46,8 +55,10 @@ python.pkgs.buildPythonApplication rec {
       django-cors-headers
       django-countries
       django-extensions
+      django-filter
       django-lasuite
       django-parler
+      django-pydantic-field
       django-redis
       django-storages
       django-timezone-field
@@ -65,9 +76,11 @@ python.pkgs.buildPythonApplication rec {
       mozilla-django-oidc
       nested-multipart-parser
       psycopg
+      pydantic
       pyjwt
       pyopenssl
       python-frontmatter
+      python-magic
       redis
       requests
       sentry-sdk

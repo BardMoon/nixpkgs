@@ -365,6 +365,8 @@
   ./programs/xfs_quota.nix
   ./programs/xonsh.nix
   ./programs/xppen.nix
+  ./programs/xscreensaver/sonar.nix
+  ./programs/xscreensaver/xscreensaver.nix
   ./programs/xss-lock.nix
   ./programs/xwayland.nix
   ./programs/yazi.nix
@@ -878,7 +880,6 @@
   ./services/misc/ihaskell.nix
   ./services/misc/iio-niri.nix
   ./services/misc/input-remapper.nix
-  ./services/misc/inventree.nix
   ./services/misc/invidious-router.nix
   ./services/misc/irkerd.nix
   ./services/misc/jackett.nix
@@ -1328,7 +1329,6 @@
   ./services/networking/oink.nix
   ./services/networking/onedrive.nix
   ./services/networking/openconnect.nix
-  ./services/networking/opengfw.nix
   ./services/networking/openvpn.nix
   ./services/networking/opkssh/opkssh.nix
   ./services/networking/ostinato.nix
@@ -1650,6 +1650,7 @@
   ./services/web-apps/goatcounter.nix
   ./services/web-apps/gotify-server.nix
   ./services/web-apps/gotosocial.nix
+  ./services/web-apps/goupile.nix
   ./services/web-apps/grav.nix
   ./services/web-apps/grocy.nix
   ./services/web-apps/guacamole-client.nix
@@ -1771,6 +1772,7 @@
   ./services/web-apps/strfry.nix
   ./services/web-apps/suwayomi-server.nix
   ./services/web-apps/szurubooru.nix
+  ./services/web-apps/tabbyapi.nix
   ./services/web-apps/trilium.nix
   ./services/web-apps/tt-rss.nix
   ./services/web-apps/tuliprox.nix
@@ -1778,6 +1780,7 @@
   ./services/web-apps/vikunja.nix
   ./services/web-apps/wakapi.nix
   ./services/web-apps/weblate.nix
+  ./services/web-apps/websurfx.nix
   ./services/web-apps/whitebophir.nix
   ./services/web-apps/whoami.nix
   ./services/web-apps/wiki-js.nix

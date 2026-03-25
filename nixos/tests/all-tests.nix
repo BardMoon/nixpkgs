@@ -112,7 +112,7 @@ let
         ((import ../lib/testing-python.nix { inherit system pkgs; }).evalTest {
           imports = [
             arg
-            readOnlyPkgs
+            ./read-only-pkgs.nix
           ];
         }).config.result;
       findTests =
@@ -140,24 +140,6 @@ let
     runTestOn
     ;
 
-  # Using a single instance of nixpkgs makes test evaluation faster.
-  # To make sure we don't accidentally depend on a modified pkgs, we make the
-  # related options read-only. We need to test the right configuration.
-  #
-  # If your service depends on a nixpkgs setting, first try to avoid that, but
-  # otherwise, you can remove the readOnlyPkgs import and test your service as
-  # usual.
-  readOnlyPkgs =
-    # TODO: We currently accept this for nixosTests, so that the `pkgs` argument
-    #       is consistent with `pkgs` in `pkgs.nixosTests`. Can we reinitialize
-    #       it with `allowAliases = false`?
-    # warnIf pkgs.config.allowAliases "nixosTests: pkgs includes aliases."
-    {
-      _file = "${__curPos.file} readOnlyPkgs";
-      _class = "nixosTest";
-      node.pkgs = pkgs.pkgsLinux;
-    };
-
 in
 {
 
@@ -168,6 +150,7 @@ in
     node-name = runTest ./nixos-test-driver/node-name.nix;
     busybox = runTest ./nixos-test-driver/busybox.nix;
     console-log = runTest ./nixos-test-driver/console-log.nix;
+    containers = runTest ./nixos-test-driver/containers.nix;
     driver-timeout =
       pkgs.runCommand "ensure-timeout-induced-failure"
         {
@@ -584,6 +567,7 @@ in
     _module.args.firefoxPackage = pkgs.firefox-esr-140;
   };
   firefox-syncserver = runTest ./firefox-syncserver.nix;
+  firefox_decrypt = runTest ./firefox_decrypt.nix;
   firefoxpwa = runTest ./firefoxpwa.nix;
   firejail = runTest ./firejail.nix;
   firewall = runTest {
@@ -688,6 +672,7 @@ in
   gotenberg = runTest ./gotenberg.nix;
   gotify-server = runTest ./gotify-server.nix;
   gotosocial = runTest ./web-apps/gotosocial.nix;
+  goupile = runTest ./web-apps/goupile;
   grafana = handleTest ./grafana { };
   graphite = runTest ./graphite.nix;
   grav = runTest ./web-apps/grav.nix;
@@ -716,7 +701,6 @@ in
     package = pkgs.hadoop_3_3;
   };
   haproxy = runTest ./haproxy.nix;
-  hardened = runTest ./hardened.nix;
   harmonia = runTest ./harmonia.nix;
   haste-server = runTest ./haste-server.nix;
   hbase2 = runTest {
@@ -771,7 +755,6 @@ in
   immich = runTest ./web-apps/immich.nix;
   immich-kiosk = runTest ./web-apps/immich-kiosk.nix;
   immich-public-proxy = runTest ./web-apps/immich-public-proxy.nix;
-  immich-vectorchord-migration = runTest ./web-apps/immich-vectorchord-migration.nix;
   immich-vectorchord-reindex = runTest ./web-apps/immich-vectorchord-reindex.nix;
   immichframe = runTest ./web-apps/immichframe.nix;
   incron = runTest ./incron.nix;
@@ -797,7 +780,6 @@ in
   installer = handleTest ./installer.nix { };
   installer-systemd-stage-1 = handleTest ./installer-systemd-stage-1.nix { };
   intune = runTest ./intune.nix;
-  inventree = runTest ./inventree.nix;
   invidious = runTest ./invidious.nix;
   invoiceplane = runTest ./invoiceplane.nix;
   iodine = runTest ./iodine.nix;
@@ -1071,9 +1053,8 @@ in
   neo4j = runTest ./neo4j.nix;
   netbird = runTest ./netbird.nix;
   netbox-upgrade = runTest ./web-apps/netbox-upgrade.nix;
-  netbox_4_2 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_2; };
-  netbox_4_3 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_3; };
   netbox_4_4 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_4; };
+  netbox_4_5 = handleTest ./web-apps/netbox/default.nix { netbox = pkgs.netbox_4_5; };
   netdata = runTest ./netdata.nix;
   networking.networkd = handleTest ./networking/networkd-and-scripted.nix { networkd = true; };
   networking.networkmanager = handleTest ./networking/networkmanager.nix { };
@@ -1138,9 +1119,6 @@ in
   nixos-rebuild-target-host = runTest {
     imports = [ ./nixos-rebuild-target-host.nix ];
   };
-  nixos-rebuild-target-host-interrupted = runTest {
-    imports = [ ./nixos-rebuild-target-host-interrupted.nix ];
-  };
   nixpkgs = pkgs.callPackage ../modules/misc/nixpkgs/test.nix { inherit evalMinimalConfig; };
   nixpkgs-config-allow-unfree =
     pkgs.callPackage ../modules/misc/nixpkgs/test-nixpkgs-config-allow-unfree.nix
@@ -1178,14 +1156,17 @@ in
   ocsinventory-agent = handleTestOn [ "x86_64-linux" "aarch64-linux" ] ./ocsinventory-agent.nix { };
   octoprint = runTest ./octoprint.nix;
   oddjobd = handleTestOn [ "x86_64-linux" "aarch64-linux" ] ./oddjobd.nix { };
-  odoo = runTest ./odoo.nix;
-  odoo16 = runTest {
-    imports = [ ./odoo.nix ];
-    _module.args.package = pkgs.odoo16;
-  };
   odoo17 = runTest {
     imports = [ ./odoo.nix ];
     _module.args.package = pkgs.odoo17;
+  };
+  odoo18 = runTest {
+    imports = [ ./odoo.nix ];
+    _module.args.package = pkgs.odoo18;
+  };
+  odoo19 = runTest {
+    imports = [ ./odoo.nix ];
+    _module.args.package = pkgs.odoo19;
   };
   oh-my-zsh = runTest ./oh-my-zsh.nix;
   oku = runTest ./oku.nix;
@@ -1646,6 +1627,7 @@ in
   teleports = runTest ./teleports.nix;
   temporal = runTest ./temporal.nix;
   terminal-emulators = handleTest ./terminal-emulators.nix { };
+  test-containers-bittorrent = runTest ./test-containers-bittorrent.nix;
   thanos = runTest ./thanos.nix;
   thelounge = handleTest ./thelounge.nix { };
   tiddlywiki = runTest ./tiddlywiki.nix;
@@ -1716,6 +1698,7 @@ in
   userborn-mutable-users = runTest ./userborn-mutable-users.nix;
   userborn-static = runTest ./userborn-static.nix;
   ustreamer = runTest ./ustreamer.nix;
+  utils = import ./utils { inherit runTest; };
   uwsgi = runTest ./uwsgi.nix;
   v2ray = runTest ./v2ray.nix;
   varnish60 = runTest {
@@ -1725,6 +1708,10 @@ in
   varnish77 = runTest {
     imports = [ ./varnish.nix ];
     _module.args.package = pkgs.varnish77;
+  };
+  varnish80 = runTest {
+    imports = [ ./varnish.nix ];
+    _module.args.package = pkgs.varnish80;
   };
   vault = runTest ./vault.nix;
   vault-agent = runTest ./vault-agent.nix;

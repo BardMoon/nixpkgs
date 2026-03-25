@@ -295,7 +295,6 @@ with lib.maintainers;
 
   gcc = {
     members = [
-      synthetica
       vcunat
       ericson2314
     ];
@@ -710,6 +709,10 @@ with lib.maintainers;
   sdl = {
     github = "sdl";
     enableFeatureFreezePing = true;
+  };
+
+  security-review = {
+    github = "security-review";
   };
 
   stdenv = {
